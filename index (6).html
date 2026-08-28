@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>APEX — Your Starting Grid for a Career in Formula 1</title>
+<meta name="description" content="A student-led, 100% free online non-profit bridging the gap between passionate fans and real-world motorsport industries. No experience required." />
+
+<!-- ================= FONTS ================= -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+
+<!-- ================= TAILWIND (Play CDN) ================= -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: { fontFamily: {
+    display: ['"Chakra Petch"','sans-serif'], body:['Inter','sans-serif'], mono:['"JetBrains Mono"','monospace'],
+  } } } };
+</script>
+
+<!-- ================= SUPABASE JS ================= -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+  /* ========================= TOKENS ========================= */
+  :root{
+    --bg:#08090C; --bg-2:#0C0E13; --surface:#12141B; --surface-2:#171A22;
+    --line:#23262F; --line-2:#2E323D; --text:#EDEFF2; --muted:#9AA0AC; --muted-2:#6B7280;
+    --brand:#1FD3E6; --brand-dim:#0f8f9c; --brand-ink:#03141a;
+    --red:#FF2E2E; --green:#24E07A; --amber:#FFB020; --purple:#B45CFF;
+    --radius:14px; --maxw:1180px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth; scroll-padding-top:88px}
+  body{margin:0; background:var(--bg); color:var(--text); font-family:var(--font-body,'Inter',sans-serif); -webkit-font-smoothing:antialiased; overflow-x:hidden}
+  body::before{content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
+    background-image:linear-gradient(to right,rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(to bottom,rgba(255,255,255,.025) 1px,transparent 1px);
+    background-size:64px 64px;
+    -webkit-mask-image:radial-gradient(ellipse 90% 60% at 50% 0%,#000 0%,transparent 75%); mask-image:radial-gradient(ellipse 90% 60% at 50% 0%,#000 0%,transparent 75%); opacity:.6}
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 24px; position:relative; z-index:1}
+  section{position:relative; z-index:1}
+  .display{font-family:var(--font-display,'Chakra Petch',sans-serif)}
+  .mono{font-family:var(--font-mono,'JetBrains Mono',monospace)}
+
+  .kicker{font-family:var(--font-mono,'JetBrains Mono',monospace); font-size:12px; font-weight:700; letter-spacing:.22em; text-transform:uppercase; color:var(--brand); display:inline-flex; align-items:center; gap:10px}
+  .kicker::before{content:""; width:26px; height:2px; background:var(--brand); display:inline-block; box-shadow:0 0 10px var(--brand)}
+
+  /* ========================= BUTTONS ========================= */
+  .btn{display:inline-flex; align-items:center; justify-content:center; gap:9px; font-family:var(--font-mono,'JetBrains Mono',monospace); font-weight:700; font-size:13.5px; letter-spacing:.05em; text-transform:uppercase; padding:14px 22px; border-radius:10px; cursor:pointer; text-decoration:none; border:1px solid transparent; transition:transform .12s ease,box-shadow .2s ease,background .2s ease,border-color .2s ease,color .2s ease; position:relative; white-space:nowrap}
+  .btn:active{transform:translateY(1px)}
+  .btn-primary{background:var(--brand); color:var(--brand-ink)}
+  .btn-primary:hover{box-shadow:0 8px 30px -8px var(--brand); transform:translateY(-2px)}
+  .btn-ghost{background:transparent; color:var(--text); border-color:var(--line-2)}
+  .btn-ghost:hover{border-color:var(--brand); color:var(--brand)}
+  .btn-sm{padding:10px 16px; font-size:12px}
+  .btn[disabled]{opacity:.55; cursor:not-allowed}
+  .btn .arw{transition:transform .18s ease}
+  .btn:hover .arw{transform:translateX(4px)}
+  a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--brand); outline-offset:3px; border-radius:8px}
+
+  /* ========================= NAV ========================= */
+  header.nav{position:sticky; top:0; z-index:50; background:rgba(8,9,12,.6); backdrop-filter:blur(12px); border-bottom:1px solid transparent; transition:border-color .25s ease,background .25s ease}
+  header.nav.scrolled{border-bottom-color:var(--line); background:rgba(8,9,12,.85)}
+  .nav-inner{display:flex; align-items:center; justify-content:space-between; height:72px; gap:20px}
+  .logo{display:flex; align-items:center; gap:12px; text-decoration:none; color:var(--text); flex:none}
+  .logo-mark{width:34px; height:34px; display:grid; place-items:center; flex:none; border:1.5px solid var(--brand); border-radius:8px; color:var(--brand); box-shadow:inset 0 0 14px rgba(31,211,230,.18)}
+  .logo-word{font-family:var(--font-display); font-weight:700; font-size:21px; letter-spacing:.06em; line-height:1}
+  .logo-sub{font-family:var(--font-mono); font-size:9.5px; letter-spacing:.2em; color:var(--muted-2); text-transform:uppercase; margin-top:3px}
+  .nav-links{display:flex; align-items:center; gap:26px}
+  .nav-links a{font-family:var(--font-mono); font-size:13px; font-weight:500; letter-spacing:.03em; color:var(--muted); text-decoration:none; transition:color .18s ease; position:relative; padding:6px 0; cursor:pointer}
+  .nav-links a:hover{color:var(--text)}
+  .nav-links a::after{content:""; position:absolute; left:0; bottom:-2px; height:2px; width:0; background:var(--brand); transition:width .2s ease; box-shadow:0 0 8px var(--brand)}
+  .nav-links a:hover::after{width:100%}
+  .nav-right{display:flex; align-items:center; gap:14px; flex:none}
+  .nav-account{display:none; font-family:var(--font-mono); font-size:12px; color:var(--muted); align-items:center; gap:10px}
+  .nav-account .who{color:var(--brand)}
+  .nav-account button{background:none; border:1px solid var(--line-2); color:var(--muted); font-family:var(--font-mono); font-size:11px; padding:6px 10px; border-radius:7px; cursor:pointer; letter-spacing:.05em}
+  .nav-account button:hover{border-color:var(--brand); color:var(--brand)}
+  .menu-btn{display:none; background:none; border:1px solid var(--line-2); border-radius:8px; padding:8px 10px; cursor:pointer; color:var(--text)}
+  .mobile-menu{display:none; border-top:1px solid var(--line); background:rgba(8,9,12,.97)}
+  .mobile-menu a{display:block; padding:15px 24px; border-bottom:1px solid var(--line); font-family:var(--font-mono); font-size:14px; color:var(--muted); text-decoration:none; cursor:pointer}
+  .mobile-menu a:hover{color:var(--brand); background:var(--surface)}
+  .mobile-menu .btn{margin:16px 24px; display:flex}
+
+  /* ========================= HERO ========================= */
+  .hero{padding:70px 0 90px}
+  .hero-grid{display:grid; grid-template-columns:1.05fr .95fr; gap:56px; align-items:center}
+  .hero h1{font-family:var(--font-display); font-weight:700; font-size:clamp(38px,5.6vw,68px); line-height:1.02; letter-spacing:-.01em; margin:22px 0 0}
+  .hero h1 .hl{color:var(--brand); position:relative; white-space:nowrap}
+  .hero h1 .hl::after{content:""; position:absolute; left:0; right:0; bottom:2px; height:10px; z-index:-1; background:linear-gradient(90deg,rgba(31,211,230,.35),rgba(31,211,230,0))}
+  .hero p.sub{color:var(--muted); font-size:clamp(15px,1.6vw,18px); line-height:1.65; margin:22px 0 0; max-width:560px}
+  .hero-cta{display:flex; flex-wrap:wrap; gap:14px; margin-top:32px}
+  .hero-meta{display:flex; flex-wrap:wrap; gap:8px 18px; margin-top:34px; padding-top:24px; border-top:1px solid var(--line); font-family:var(--font-mono); font-size:11.5px; letter-spacing:.12em; color:var(--muted-2); text-transform:uppercase}
+  .hero-meta span{display:inline-flex; align-items:center; gap:8px}
+  .hero-meta span::before{content:""; width:6px; height:6px; border-radius:50%; background:var(--brand); box-shadow:0 0 8px var(--brand)}
+
+  .grid-panel{background:linear-gradient(180deg,var(--surface) 0%,var(--bg-2) 100%); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; box-shadow:0 40px 80px -40px rgba(0,0,0,.8); position:relative}
+  .grid-panel::before{content:""; position:absolute; inset:0; pointer-events:none; opacity:.4; background:repeating-linear-gradient(0deg,rgba(255,255,255,.02) 0 1px,transparent 1px 4px)}
+  .gp-head{display:flex; align-items:center; justify-content:space-between; gap:14px; padding:14px 18px; border-bottom:1px solid var(--line); background:rgba(0,0,0,.25)}
+  .gp-title{font-family:var(--font-mono); font-size:11px; letter-spacing:.2em; color:var(--muted); text-transform:uppercase}
+  .gp-title b{color:var(--text)}
+  .lights{display:flex; gap:8px; cursor:pointer}
+  .light{width:11px; height:22px; border-radius:5px; background:#2a0808; border:1px solid #3a1010; transition:background .12s ease,box-shadow .12s ease}
+  .light.is-on{background:var(--red); box-shadow:0 0 12px 1px rgba(255,46,46,.85); border-color:#ff6a6a}
+  .gp-rows{padding:8px 0}
+  .grid-row{display:grid; grid-template-columns:52px 1fr auto; align-items:center; gap:14px; padding:13px 18px; border-bottom:1px solid rgba(255,255,255,.04); font-family:var(--font-mono); position:relative; opacity:0; transform:translateX(-8px); animation:rowIn .5s forwards}
+  .grid-row:last-child{border-bottom:none}
+  .grid-row .pos{font-size:15px; font-weight:700; color:var(--muted-2)}
+  .grid-row .role{font-size:14px; color:var(--text); letter-spacing:.02em}
+  .grid-row .tag{font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted-2)}
+  .grid-row.you{background:linear-gradient(90deg,rgba(31,211,230,.10),transparent)}
+  .grid-row.you::before{content:""; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--brand); box-shadow:0 0 12px var(--brand)}
+  .grid-row.you .pos{color:var(--brand)} .grid-row.you .tag{color:var(--green)}
+  .gp-foot{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:13px 18px; border-top:1px solid var(--line); background:rgba(0,0,0,.25); font-family:var(--font-mono); font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--muted)}
+  .lights-out{color:var(--brand); display:inline-flex; align-items:center; gap:8px}
+
+  /* ========================= SECTION SHELL ========================= */
+  .band{padding:96px 0; border-top:1px solid var(--line)}
+  .sec-head{max-width:660px; margin-bottom:52px}
+  .sec-head h2{font-family:var(--font-display); font-weight:700; font-size:clamp(28px,3.6vw,44px); line-height:1.08; letter-spacing:-.01em; margin:16px 0 0}
+  .sec-head p{color:var(--muted); font-size:16px; line-height:1.65; margin:16px 0 0}
+
+  /* ========================= MISSION / VALUE ========================= */
+  .feat-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:20px}
+  .feat{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:30px 26px; transition:border-color .2s ease,transform .2s ease,background .2s ease}
+  .feat:hover{border-color:var(--line-2); transform:translateY(-4px); background:var(--surface-2)}
+  .feat .ic{width:46px; height:46px; border-radius:11px; display:grid; place-items:center; border:1px solid var(--line-2); color:var(--brand); margin-bottom:20px; background:rgba(31,211,230,.06)}
+  .feat h3{font-family:var(--font-display); font-weight:600; font-size:20px; margin:0 0 10px; letter-spacing:.01em}
+  .feat p{color:var(--muted); font-size:14.5px; line-height:1.6; margin:0}
+  .feat .num{font-family:var(--font-mono); font-size:11px; color:var(--muted-2); letter-spacing:.2em; display:block; margin-bottom:14px}
+
+  /* ========================= CAREERS DIRECTORY ========================= */
+  .careers-tools{display:flex; flex-wrap:wrap; gap:14px; align-items:center; justify-content:space-between; margin-bottom:26px}
+  .search-box{display:flex; align-items:center; gap:10px; background:var(--surface); border:1px solid var(--line-2); border-radius:10px; padding:11px 15px; min-width:280px; flex:1; max-width:420px}
+  .search-box input{background:none; border:none; outline:none; color:var(--text); font-family:var(--font-mono); font-size:13px; width:100%}
+  .search-box input::placeholder{color:var(--muted-2)}
+  .search-box svg{color:var(--muted-2); flex:none}
+  .chips{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:30px}
+  .chip{font-family:var(--font-mono); font-size:11.5px; letter-spacing:.04em; padding:8px 13px; border-radius:8px; border:1px solid var(--line-2); background:var(--surface); color:var(--muted); cursor:pointer; transition:all .15s ease}
+  .chip:hover{color:var(--text); border-color:var(--line-2)}
+  .chip.active{background:var(--brand); color:var(--brand-ink); border-color:var(--brand); font-weight:700}
+  .dept-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:18px}
+  .dept{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:24px; transition:border-color .2s ease}
+  .dept:hover{border-color:var(--line-2)}
+  .dept-head{display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:16px; padding-bottom:14px; border-bottom:1px solid var(--line)}
+  .dept-head h3{font-family:var(--font-display); font-weight:600; font-size:17px; margin:0; letter-spacing:.01em}
+  .dept-head .count{font-family:var(--font-mono); font-size:11px; color:var(--brand)}
+  .roles{list-style:none; margin:0; padding:0; columns:2; column-gap:22px}
+  .roles li{font-family:var(--font-mono); font-size:12.5px; color:var(--muted); padding:5px 0 5px 15px; position:relative; break-inside:avoid; line-height:1.35}
+  .roles li::before{content:""; position:absolute; left:0; top:11px; width:5px; height:5px; border-radius:1px; background:var(--brand-dim)}
+  .roles li mark{background:rgba(31,211,230,.25); color:var(--text); border-radius:3px}
+  .dept.hide,.roles li.hide{display:none}
+  .careers-note{font-family:var(--font-mono); font-size:12px; color:var(--muted-2); margin-top:22px; text-align:center}
+  .no-results{display:none; text-align:center; color:var(--muted); font-family:var(--font-mono); padding:40px 0}
+
+  /* ========================= SURVEY BANNER ========================= */
+  .path-banner{border:1px solid var(--line-2); border-radius:20px; padding:44px; display:grid; grid-template-columns:1fr auto; gap:34px; align-items:center;
+    background:radial-gradient(130% 160% at 0% 0%,rgba(31,211,230,.12),transparent 55%),linear-gradient(180deg,var(--surface),var(--bg-2)); position:relative; overflow:hidden}
+  .path-banner h2{font-family:var(--font-display); font-weight:700; font-size:clamp(24px,3vw,34px); margin:14px 0 0; line-height:1.12}
+  .path-banner p{color:var(--muted); font-size:15.5px; line-height:1.6; margin:14px 0 0; max-width:520px}
+  .path-cta{display:flex; flex-direction:column; gap:10px; align-items:flex-start}
+  .path-cta .fine{font-family:var(--font-mono); font-size:10.5px; letter-spacing:.1em; color:var(--muted-2); text-transform:uppercase}
+
+  /* ========================= COURSES ========================= */
+  .cards{display:grid; grid-template-columns:repeat(2,1fr); gap:20px}
+  .card{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:26px; display:flex; flex-direction:column; position:relative; overflow:hidden; transition:border-color .2s ease,transform .2s ease}
+  .card::after{content:""; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--brand); transform:scaleY(0); transform-origin:top; transition:transform .25s ease; box-shadow:0 0 12px var(--brand)}
+  .card:hover{border-color:var(--line-2); transform:translateY(-4px)} .card:hover::after{transform:scaleY(1)}
+  .card-top{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:18px}
+  .code{font-family:var(--font-mono); font-size:11px; letter-spacing:.16em; color:var(--muted-2)}
+  .pill{font-family:var(--font-mono); font-size:10.5px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; padding:5px 10px; border-radius:6px; display:inline-flex; align-items:center; gap:7px; border:1px solid}
+  .pill::before{content:""; width:7px; height:7px; border-radius:2px}
+  .pill.beginner{color:var(--green); border-color:rgba(36,224,122,.3); background:rgba(36,224,122,.07)} .pill.beginner::before{background:var(--green); box-shadow:0 0 8px var(--green)}
+  .pill.intermediate{color:var(--amber); border-color:rgba(255,176,32,.3); background:rgba(255,176,32,.07)} .pill.intermediate::before{background:var(--amber); box-shadow:0 0 8px var(--amber)}
+  .pill.advanced{color:var(--purple); border-color:rgba(180,92,255,.3); background:rgba(180,92,255,.07)} .pill.advanced::before{background:var(--purple); box-shadow:0 0 8px var(--purple)}
+  .card h3{font-family:var(--font-display); font-weight:600; font-size:21px; line-height:1.2; margin:0 0 10px}
+  .card p{color:var(--muted); font-size:14px; line-height:1.6; margin:0 0 22px; flex:1}
+  .card-foot{display:flex; align-items:center; justify-content:space-between; gap:12px; padding-top:18px; border-top:1px solid var(--line)}
+  .dur{font-family:var(--font-mono); font-size:12px; color:var(--muted); letter-spacing:.06em; display:inline-flex; align-items:center; gap:8px}
+  .card-foot button{background:none; border:none; cursor:pointer; font-family:var(--font-mono); font-size:12.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--brand); display:inline-flex; align-items:center; gap:7px}
+  .card-foot button .arw{transition:transform .18s ease} .card-foot button:hover .arw{transform:translateX(4px)}
+
+  /* ========================= HOW IT WORKS ========================= */
+  .grid-steps{display:grid; grid-template-columns:repeat(4,1fr); gap:18px; align-items:start}
+  .step{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:26px 22px; position:relative; transition:border-color .2s ease,transform .2s ease}
+  .step:hover{border-color:var(--brand); transform:translateY(-5px)}
+  .step:nth-child(even){margin-top:38px}
+  .step .pos{font-family:var(--font-mono); font-size:13px; font-weight:700; letter-spacing:.1em; color:var(--brand); display:inline-flex; align-items:center; gap:9px; margin-bottom:20px}
+  .step .pos .slot{width:34px; height:34px; border:1px solid var(--line-2); border-radius:8px; display:grid; place-items:center; color:var(--text); font-size:14px; background:rgba(255,255,255,.02)}
+  .step h3{font-family:var(--font-display); font-weight:600; font-size:18px; margin:0 0 10px; line-height:1.25}
+  .step p{color:var(--muted); font-size:13.5px; line-height:1.6; margin:0}
+  .step .flag{position:absolute; top:22px; right:22px; color:var(--muted-2); opacity:.5}
+
+  /* ========================= PROFESSIONALS ========================= */
+  .pro{border:1px solid var(--line); border-radius:20px; overflow:hidden; background:radial-gradient(120% 140% at 100% 0%,rgba(31,211,230,.10),transparent 55%),linear-gradient(180deg,var(--surface),var(--bg-2)); position:relative}
+  .pro::before{content:""; position:absolute; inset:0; pointer-events:none; opacity:.5; background-image:linear-gradient(to right,rgba(255,255,255,.03) 1px,transparent 1px); background-size:46px 46px; -webkit-mask-image:linear-gradient(90deg,transparent,#000 60%); mask-image:linear-gradient(90deg,transparent,#000 60%)}
+  .pro-inner{display:grid; grid-template-columns:1.3fr .7fr; gap:40px; align-items:center; padding:52px 48px; position:relative; z-index:1}
+  .pro h2{font-family:var(--font-display); font-weight:700; font-size:clamp(26px,3.2vw,38px); line-height:1.1; margin:16px 0 0}
+  .pro p{color:var(--muted); font-size:15.5px; line-height:1.65; margin:18px 0 0; max-width:520px}
+  .pro-cta{display:flex; justify-content:flex-end}
+  .pass{width:100%; max-width:270px; background:var(--bg); border:1px solid var(--line-2); border-radius:14px; padding:20px; font-family:var(--font-mono); box-shadow:0 30px 60px -30px rgba(0,0,0,.8)}
+  .pass .pass-top{display:flex; justify-content:space-between; align-items:center; font-size:10px; letter-spacing:.2em; color:var(--muted-2); text-transform:uppercase; border-bottom:1px dashed var(--line-2); padding-bottom:14px}
+  .pass .pass-body .lbl{font-size:9.5px; letter-spacing:.2em; color:var(--muted-2); text-transform:uppercase; margin-top:16px}
+  .pass .pass-body .val{font-family:var(--font-display); font-size:19px; color:var(--text); margin:4px 0 0}
+  .pass .barcode{height:38px; margin-top:18px; background:repeating-linear-gradient(90deg,var(--text) 0 2px,transparent 2px 5px); opacity:.55; border-radius:3px}
+
+  /* ========================= FOOTER ========================= */
+  footer{border-top:1px solid var(--line); padding:56px 0 40px}
+  .foot-top{display:flex; justify-content:space-between; gap:30px; flex-wrap:wrap; align-items:flex-start}
+  .foot-links{display:flex; gap:28px; flex-wrap:wrap}
+  .foot-links a{font-family:var(--font-mono); font-size:12.5px; color:var(--muted); text-decoration:none; letter-spacing:.03em}
+  .foot-links a:hover{color:var(--brand)}
+  .foot-note{margin-top:34px; padding-top:24px; border-top:1px solid var(--line); color:var(--muted-2); font-size:13px; line-height:1.6; max-width:640px}
+  .disclaimer{font-family:var(--font-mono); font-size:11px; letter-spacing:.05em; color:var(--muted-2); margin-top:14px}
+
+  /* ========================= MODAL ========================= */
+  .overlay{position:fixed; inset:0; z-index:100; background:rgba(4,5,8,.75); backdrop-filter:blur(6px); display:none; align-items:flex-start; justify-content:center; padding:40px 20px; overflow-y:auto}
+  .overlay.open{display:flex}
+  .modal{width:100%; max-width:560px; background:linear-gradient(180deg,var(--surface),var(--bg-2)); border:1px solid var(--line-2); border-radius:18px; box-shadow:0 50px 100px -40px rgba(0,0,0,.9); position:relative; overflow:hidden; animation:modalIn .25s ease}
+  .modal-strip{height:4px; background:linear-gradient(90deg,var(--green),var(--amber),var(--purple),var(--brand))}
+  .modal-body{padding:34px}
+  .modal-close{position:absolute; top:16px; right:16px; background:none; border:1px solid var(--line-2); color:var(--muted); width:34px; height:34px; border-radius:9px; cursor:pointer; display:grid; place-items:center; z-index:2}
+  .modal-close:hover{color:var(--text); border-color:var(--brand)}
+  .modal h2{font-family:var(--font-display); font-weight:700; font-size:25px; margin:6px 0 6px; line-height:1.15}
+  .modal .lead{color:var(--muted); font-size:14px; line-height:1.55; margin:0 0 22px}
+  .screen{display:none} .screen.active{display:block}
+
+  .auth-tabs{display:flex; gap:6px; background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:5px; margin-bottom:22px}
+  .auth-tabs button{flex:1; background:none; border:none; color:var(--muted); font-family:var(--font-mono); font-size:12.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; padding:10px; border-radius:7px; cursor:pointer}
+  .auth-tabs button.active{background:var(--surface-2); color:var(--brand)}
+  .field{margin-bottom:16px}
+  .field label{display:block; font-family:var(--font-mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin-bottom:8px}
+  .field input{width:100%; background:var(--bg); border:1px solid var(--line-2); border-radius:10px; padding:13px 15px; color:var(--text); font-family:var(--font-body); font-size:14px; outline:none; transition:border-color .15s ease}
+  .field input:focus{border-color:var(--brand)}
+  .form-msg{font-family:var(--font-mono); font-size:12px; line-height:1.5; margin:0 0 16px; padding:12px 14px; border-radius:9px; display:none}
+  .form-msg.show{display:block}
+  .form-msg.err{color:#ffb4b4; background:rgba(255,46,46,.09); border:1px solid rgba(255,46,46,.3)}
+  .form-msg.ok{color:var(--green); background:rgba(36,224,122,.08); border:1px solid rgba(36,224,122,.3)}
+  .form-msg.info{color:var(--amber); background:rgba(255,176,32,.08); border:1px solid rgba(255,176,32,.3)}
+  .auth-alt{font-family:var(--font-mono); font-size:12px; color:var(--muted-2); text-align:center; margin-top:16px}
+  .auth-alt a{color:var(--brand); cursor:pointer; text-decoration:none}
+
+  /* survey */
+  .survey-progress{display:flex; gap:6px; margin-bottom:22px}
+  .survey-progress span{flex:1; height:4px; border-radius:3px; background:var(--line)}
+  .survey-progress span.done{background:var(--brand)}
+  .q{display:none} .q.active{display:block}
+  .q .qtext{font-family:var(--font-display); font-weight:600; font-size:19px; margin:0 0 4px}
+  .q .qhint{font-family:var(--font-mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted-2); margin:0 0 18px}
+  .opts{display:flex; flex-direction:column; gap:10px}
+  .opt{display:flex; align-items:center; gap:13px; text-align:left; width:100%; background:var(--bg); border:1px solid var(--line-2); border-radius:11px; padding:15px 16px; cursor:pointer; color:var(--text); font-family:var(--font-body); font-size:14.5px; transition:border-color .15s ease,background .15s ease}
+  .opt:hover{border-color:var(--brand)}
+  .opt.sel{border-color:var(--brand); background:rgba(31,211,230,.08)}
+  .opt .dot{width:18px; height:18px; border-radius:50%; border:2px solid var(--line-2); flex:none; display:grid; place-items:center; transition:border-color .15s}
+  .opt.sel .dot{border-color:var(--brand)} .opt.sel .dot::after{content:""; width:8px; height:8px; border-radius:50%; background:var(--brand)}
+  .survey-nav{display:flex; justify-content:space-between; gap:12px; margin-top:24px}
+  .link-btn{background:none; border:none; color:var(--muted-2); font-family:var(--font-mono); font-size:12px; cursor:pointer; padding:8px 4px}
+  .link-btn:hover{color:var(--text)}
+
+  /* recommendation */
+  .rec-track{border:1px solid var(--brand); border-radius:14px; padding:22px; background:rgba(31,211,230,.06); margin-bottom:22px}
+  .rec-track .rt-label{font-family:var(--font-mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--brand)}
+  .rec-track h3{font-family:var(--font-display); font-weight:700; font-size:24px; margin:8px 0 8px}
+  .rec-track p{color:var(--muted); font-size:14px; line-height:1.55; margin:0}
+  .rec-sub{font-family:var(--font-mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin:22px 0 12px}
+  .rec-roles{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:6px}
+  .rec-roles span{font-family:var(--font-mono); font-size:12px; color:var(--muted); border:1px solid var(--line-2); border-radius:7px; padding:6px 11px; background:var(--bg)}
+  .rec-course{display:flex; align-items:center; justify-content:space-between; gap:14px; background:var(--bg); border:1px solid var(--line-2); border-radius:11px; padding:14px 16px; margin-bottom:10px}
+  .rec-course .rc-l{display:flex; flex-direction:column; gap:5px}
+  .rec-course .rc-title{font-family:var(--font-display); font-weight:600; font-size:15px}
+  .rec-course .rc-meta{font-family:var(--font-mono); font-size:11px; color:var(--muted-2); letter-spacing:.06em}
+  .rec-actions{display:flex; gap:12px; flex-wrap:wrap; margin-top:24px}
+
+  /* ========================= REVEAL / MOTION ========================= */
+  .reveal{opacity:0; transform:translateY(24px); transition:opacity .6s ease,transform .6s ease}
+  .reveal.in{opacity:1; transform:none}
+  @keyframes rowIn{to{opacity:1; transform:none}}
+  @keyframes modalIn{from{opacity:0; transform:translateY(14px)} to{opacity:1; transform:none}}
+
+  /* ========================= RESPONSIVE ========================= */
+  @media (max-width:1000px){
+    .hero-grid{grid-template-columns:1fr; gap:44px}
+    .grid-steps{grid-template-columns:repeat(2,1fr)} .step:nth-child(even){margin-top:0}
+    .dept-grid{grid-template-columns:1fr}
+    .pro-inner{grid-template-columns:1fr; padding:40px 30px} .pro-cta{justify-content:flex-start}
+    .path-banner{grid-template-columns:1fr; padding:34px}
+  }
+  @media (max-width:820px){
+    .nav-links{display:none} .menu-btn{display:block} .nav-right .btn{display:none}
+    .band{padding:70px 0} .feat-grid{grid-template-columns:1fr} .cards{grid-template-columns:1fr}
+  }
+  @media (max-width:520px){
+    .grid-steps{grid-template-columns:1fr} .roles{columns:1} .modal-body{padding:26px 22px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none !important; transition:none !important; scroll-behavior:auto !important}
+    .reveal,.grid-row{opacity:1; transform:none}
+  }
+</style>
+</head>
+<body>
+
+<!-- ======================= NAV ======================= -->
+<!-- PLACEHOLDER: swap "APEX" wordmark + mark for your brand -->
+<header class="nav" id="top">
+  <div class="wrap nav-inner">
+    <a href="#top" class="logo" aria-label="APEX home">
+      <span class="logo-mark" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 3 3 21h5l4-9 4 9h5L12 3Z" fill="currentColor"/></svg></span>
+      <span><span class="logo-word display">APEX</span><span class="logo-sub">// Motorsport Pathways</span></span>
+    </a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="#careers">Careers</a>
+      <a href="#catalog">Course Catalog</a>
+      <!-- PLACEHOLDER: Discord invite -->
+      <a href="https://discord.gg/your-invite" target="_blank" rel="noopener">Student Hub</a>
+      <a href="#professionals">For Professionals</a>
+      <a href="#mission">Our Mission</a>
+    </nav>
+    <div class="nav-right">
+      <div class="nav-account" id="navAccount"><span class="who" id="navWho"></span><button id="signOutBtn">Sign out</button></div>
+      <!-- PLACEHOLDER: Discord invite -->
+      <a href="https://discord.gg/your-invite" target="_blank" rel="noopener" class="btn btn-primary">Join the Community</a>
+      <button class="menu-btn" id="menuBtn" aria-label="Open menu" aria-expanded="false"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+    </div>
+  </div>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#careers">Careers</a>
+    <a href="#catalog">Course Catalog</a>
+    <a href="https://discord.gg/your-invite" target="_blank" rel="noopener">Student Hub (Discord)</a>
+    <a href="#professionals">For Professionals</a>
+    <a href="#mission">Our Mission</a>
+    <a href="https://discord.gg/your-invite" target="_blank" rel="noopener" class="btn btn-primary">Join the Community</a>
+  </div>
+</header>
+
+<!-- ======================= HERO ======================= -->
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="kicker">Lights Out • Season 01</span>
+      <h1>Your <span class="hl">Starting Grid</span> for a Career in Formula&nbsp;1.</h1>
+      <p class="sub">A student-led, 100% free online non-profit bridging the gap between passionate fans and real-world motorsport industries. No experience required.</p>
+      <div class="hero-cta">
+        <button class="btn btn-primary" data-open-flow>Find Your Path <span class="arw" aria-hidden="true">→</span></button>
+        <a href="#catalog" class="btn btn-ghost">Explore Free Courses</a>
+      </div>
+      <div class="hero-meta"><span>100% Free</span><span>Self-Paced</span><span>Student-Led</span><span>No Experience Needed</span></div>
+    </div>
+
+    <div class="grid-panel" aria-label="Starting grid illustration">
+      <div class="gp-head">
+        <span class="gp-title">Starting Grid <b>// Formation Lap</b></span>
+        <div class="lights" id="lights" role="button" tabindex="0" aria-label="Replay start lights">
+          <span class="light"></span><span class="light"></span><span class="light"></span><span class="light"></span><span class="light"></span>
+        </div>
+      </div>
+      <div class="gp-rows">
+        <div class="grid-row you" style="animation-delay:.05s"><span class="pos">P01</span><span class="role">You</span><span class="tag">Rookie · Green</span></div>
+        <div class="grid-row" style="animation-delay:.15s"><span class="pos">P02</span><span class="role">Engineering &amp; Strategy</span><span class="tag">Open</span></div>
+        <div class="grid-row" style="animation-delay:.25s"><span class="pos">P03</span><span class="role">Design &amp; Media</span><span class="tag">Open</span></div>
+        <div class="grid-row" style="animation-delay:.35s"><span class="pos">P04</span><span class="role">Commercial &amp; Marketing</span><span class="tag">Open</span></div>
+        <div class="grid-row" style="animation-delay:.45s"><span class="pos">P05</span><span class="role">Logistics &amp; Operations</span><span class="tag">Open</span></div>
+      </div>
+      <div class="gp-foot"><span>Grid Locked</span><span class="lights-out">Lights Out →</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= MISSION / VALUE ======================= -->
+<section class="band" id="mission">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="kicker">Our Mission</span>
+      <h2>We turn superfans into professionals.</h2>
+      <p>Formula 1 hires thousands of people who never touch a steering wheel — engineers, strategists, designers, marketers, logisticians. Our mission is to hand the next generation a clear, free, project-based route into every one of those jobs.</p>
+    </div>
+    <div class="feat-grid">
+      <div class="feat reveal">
+        <span class="ic" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="5" cy="6" r="2"/><circle cx="5" cy="18" r="2"/><circle cx="19" cy="12" r="2.4"/><path d="M7 6h5a5 5 0 0 1 5 5M7 18h5a5 5 0 0 0 5-5"/></svg></span>
+        <span class="num">01 / Problem</span><h3>Fragmented Resources</h3>
+        <p>Industry paths are scattered across forums, dead links and gatekept PDFs. We centralize the map so you always know your next corner.</p>
+      </div>
+      <div class="feat reveal">
+        <span class="ic" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 20h16M6 16l4-8 3 5 2-3 3 6"/><circle cx="10" cy="8" r="1"/></svg></span>
+        <span class="num">02 / Method</span><h3>Project-Based Learning</h3>
+        <p>No boring lectures. Learn by designing liveries, analyzing telemetry and writing real marketing pitches — work that ships to a portfolio.</p>
+      </div>
+      <div class="feat reveal">
+        <span class="ic" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4M9 21h6"/></svg></span>
+        <span class="num">03 / Source</span><h3>Industry Led</h3>
+        <p>Learn directly from interviews and masterclasses with real F1 and motorsport professionals — the people already doing the job.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= CAREERS DIRECTORY ======================= -->
+<section class="band" id="careers">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="kicker">Every Job on the Grid</span>
+      <h2>Careers in Formula 1</h2>
+      <p>A racing team is a small city. Search 130+ real roles across 18 departments — from CFD engineers and pit-crew tyre gunners to cost-cap analysts and broadcast directors. Find where you fit, then let the survey point you at a course.</p>
+    </div>
+
+    <div class="careers-tools reveal">
+      <div class="search-box">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input id="careerSearch" type="text" placeholder="Search roles — e.g. aero, data, marketing, mechanic…" aria-label="Search F1 careers" />
+      </div>
+      <button class="btn btn-primary btn-sm" data-open-flow>Not sure? Take the survey <span class="arw" aria-hidden="true">→</span></button>
+    </div>
+
+    <div class="chips reveal" id="careerChips"></div>
+    <div class="dept-grid" id="deptGrid"></div>
+    <div class="no-results" id="noResults">No roles match that search. Try "engineer", "media", or "logistics".</div>
+    <p class="careers-note">Roles reflect real jobs across F1 teams, F1 &amp; the FIA, suppliers and broadcasters. New masterclasses are added to the catalog every season.</p>
+  </div>
+</section>
+
+<!-- ======================= FIND YOUR PATH BANNER ======================= -->
+<section class="band">
+  <div class="wrap">
+    <div class="path-banner reveal">
+      <div>
+        <span class="kicker">Find Your Path</span>
+        <h2>Take the 60-second survey. Get a career track.</h2>
+        <p>Answer four quick questions about your background and what excites you. We'll match you to one of five F1 career tracks and recommend the free courses to start with.</p>
+      </div>
+      <div class="path-cta">
+        <button class="btn btn-primary" data-open-flow>Create Account &amp; Start <span class="arw" aria-hidden="true">→</span></button>
+        <span class="fine">Free forever · No credit card</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= COURSE CATALOG ======================= -->
+<section class="band" id="catalog">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="kicker">The Hub</span>
+      <h2>Course Catalog</h2>
+      <p>Free, self-paced tracks across every corner of the paddock. Difficulty is graded like a timing screen — green is a clean first lap, purple is the fastest and toughest.</p>
+    </div>
+    <div class="cards" id="catalogCards"></div>
+  </div>
+</section>
+
+<!-- ======================= HOW IT WORKS ======================= -->
+<section class="band">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="kicker">Pit Procedure</span><h2>How it works</h2>
+      <p>Four positions on the grid, start to finish. Self-paced, but built like a real race weekend.</p>
+    </div>
+    <div class="grid-steps">
+      <div class="step reveal"><span class="pos"><span class="slot">01</span> Position</span>
+        <svg class="flag" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 3v18M6 4h12l-2 4 2 4H6"/></svg>
+        <h3>Choose Your Path</h3><p>Pick a free, self-paced course track from our catalog.</p></div>
+      <div class="step reveal"><span class="pos"><span class="slot">02</span> Position</span>
+        <svg class="flag" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+        <h3>Watch &amp; Learn</h3><p>Stream 20-minute masterclasses recorded with real motorsport professionals.</p></div>
+      <div class="step reveal"><span class="pos"><span class="slot">03</span> Position</span>
+        <svg class="flag" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 7l3 3M5 19l1-4L16 5l3 3L9 18l-4 1Z"/></svg>
+        <h3>Build Your Project</h3><p>Complete real-world hands-on milestones using free digital tools.</p></div>
+      <div class="step reveal"><span class="pos"><span class="slot">04</span> Position</span>
+        <svg class="flag" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12a9 9 0 1 1-4-7.5M21 5l-9 9-3-3"/></svg>
+        <h3>Get Community Peer Review</h3><p>Drop your work in our Discord for feedback from peers and mentors.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= PROFESSIONALS ======================= -->
+<section class="band" id="professionals">
+  <div class="wrap">
+    <div class="pro reveal">
+      <div class="pro-inner">
+        <div>
+          <span class="kicker">Paddock Pass</span>
+          <h2>Are you a Motorsport Professional?</h2>
+          <p>We are always looking for engineers, mechanics, creators, and marketers to share their journey. No curriculum planning required — just a 20-minute virtual Q&amp;A to inspire the next generation.</p>
+          <div style="margin-top:28px">
+            <!-- PLACEHOLDER: Calendly / contact link -->
+            <a href="https://calendly.com/your-link" target="_blank" rel="noopener" class="btn btn-primary">Share Your Story <span class="arw" aria-hidden="true">→</span></a>
+          </div>
+        </div>
+        <div class="pro-cta">
+          <div class="pass" aria-hidden="true">
+            <div class="pass-top"><span>Paddock Pass</span><span>ALL AREAS</span></div>
+            <div class="pass-body">
+              <div class="lbl">Guest Speaker</div><div class="val display">20 Minutes</div>
+              <div class="lbl">Access</div><div class="val display">Next Generation</div>
+              <div class="barcode"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= FOOTER ======================= -->
+<footer>
+  <div class="wrap">
+    <div class="foot-top">
+      <a href="#top" class="logo">
+        <span class="logo-mark" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 3 3 21h5l4-9 4 9h5L12 3Z" fill="currentColor"/></svg></span>
+        <span><span class="logo-word display">APEX</span><span class="logo-sub">// Motorsport Pathways</span></span>
+      </a>
+      <nav class="foot-links" aria-label="Footer">
+        <a href="#">Terms of Service</a>
+        <a href="#">Privacy Policy</a>
+        <!-- PLACEHOLDER: contact email -->
+        <a href="mailto:hello@your-domain.org">Contact Email</a>
+      </nav>
+    </div>
+    <div class="foot-note">
+      Founded and run by high school students for future industry leaders.
+      <div class="disclaimer">NOT AFFILIATED WITH FORMULA 1, F1, OR THE FIA. ALL TRADEMARKS BELONG TO THEIR RESPECTIVE OWNERS.</div>
+    </div>
+  </div>
+</footer>
+
+<!-- ======================= MODAL (auth → survey → recommendation) ======================= -->
+<div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal">
+    <div class="modal-strip"></div>
+    <button class="modal-close" id="modalClose" aria-label="Close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    <div class="modal-body">
+
+      <!-- SCREEN 1: AUTH -->
+      <div class="screen active" id="screenAuth">
+        <span class="kicker">Pit Lane Entry</span>
+        <h2 id="modalTitle">Create your free account</h2>
+        <p class="lead">One account unlocks the survey, your recommended track, and every course. No cost, ever.</p>
+        <div class="auth-tabs">
+          <button class="active" id="tabSignup" data-mode="signup">Create Account</button>
+          <button id="tabSignin" data-mode="signin">Sign In</button>
+        </div>
+        <div class="form-msg" id="authMsg"></div>
+        <div class="field"><label for="authEmail">Email</label><input id="authEmail" type="email" autocomplete="email" placeholder="you@email.com" /></div>
+        <div class="field"><label for="authPass">Password</label><input id="authPass" type="password" autocomplete="current-password" placeholder="At least 6 characters" /></div>
+        <button class="btn btn-primary" id="authSubmit" style="width:100%">Create Account &amp; Continue</button>
+        <p class="auth-alt" id="previewLine" style="display:none">or <a data-preview>preview the survey without an account →</a></p>
+      </div>
+
+      <!-- SCREEN 2: SURVEY -->
+      <div class="screen" id="screenSurvey">
+        <span class="kicker" id="surveyKicker">Grid Assessment</span>
+        <h2>Where do you belong on the grid?</h2>
+        <p class="lead">Four quick questions. There are no wrong answers.</p>
+        <div class="survey-progress" id="surveyProgress"><span></span><span></span><span></span><span></span></div>
+
+        <div class="q active" data-q="q1">
+          <p class="qtext">What's your background or major?</p>
+          <p class="qhint">Question 1 of 4</p>
+          <div class="opts">
+            <button class="opt" data-val="stem"><span class="dot"></span>STEM — Engineering, Physics or Maths</button>
+            <button class="opt" data-val="cs"><span class="dot"></span>Computer Science, Data or Software</button>
+            <button class="opt" data-val="art"><span class="dot"></span>Art, Design or Media</button>
+            <button class="opt" data-val="biz"><span class="dot"></span>Business, Marketing or Economics</button>
+            <button class="opt" data-val="explore"><span class="dot"></span>Still exploring — just a big fan</button>
+          </div>
+        </div>
+
+        <div class="q" data-q="q2">
+          <p class="qtext">What pulls you toward Formula 1?</p>
+          <p class="qhint">Question 2 of 4</p>
+          <div class="opts">
+            <button class="opt" data-val="faster"><span class="dot"></span>Making the car faster — performance &amp; data</button>
+            <button class="opt" data-val="hands"><span class="dot"></span>Building &amp; fixing things with my hands</button>
+            <button class="opt" data-val="story"><span class="dot"></span>Telling the story — the brand &amp; the fans</button>
+            <button class="opt" data-val="deals"><span class="dot"></span>The deals, money &amp; how it all runs</button>
+            <button class="opt" data-val="all"><span class="dot"></span>Honestly? All of it</button>
+          </div>
+        </div>
+
+        <div class="q" data-q="q3">
+          <p class="qtext">Where do you picture yourself?</p>
+          <p class="qhint">Question 3 of 4</p>
+          <div class="opts">
+            <button class="opt" data-val="factory"><span class="dot"></span>The factory or design office</button>
+            <button class="opt" data-val="trackside"><span class="dot"></span>Trackside on race weekends</button>
+            <button class="opt" data-val="screen"><span class="dot"></span>Behind a screen — code, data or creative</button>
+            <button class="opt" data-val="board"><span class="dot"></span>The boardroom, doing partnerships</button>
+            <button class="opt" data-val="open"><span class="dot"></span>Open to anything</button>
+          </div>
+        </div>
+
+        <div class="q" data-q="q4">
+          <p class="qtext">How much have you built before?</p>
+          <p class="qhint">Question 4 of 4 — sets your course difficulty</p>
+          <div class="opts">
+            <button class="opt" data-val="Beginner"><span class="dot"></span>Total beginner — start me from zero</button>
+            <button class="opt" data-val="Intermediate"><span class="dot"></span>Some tinkering or hobby projects</button>
+            <button class="opt" data-val="Advanced"><span class="dot"></span>I've built real projects before</button>
+          </div>
+        </div>
+
+        <div class="survey-nav">
+          <button class="link-btn" id="surveyBack" style="visibility:hidden">← Back</button>
+          <button class="btn btn-primary btn-sm" id="surveyNext" disabled>Next →</button>
+        </div>
+      </div>
+
+      <!-- SCREEN 3: RECOMMENDATION -->
+      <div class="screen" id="screenRec">
+        <span class="kicker">Lights Out</span>
+        <h2>Your grid position is set.</h2>
+        <p class="lead" id="recIntro">Based on your answers, here's the track to chase — and where to start.</p>
+        <div class="rec-track">
+          <span class="rt-label">Recommended Track</span>
+          <h3 id="recTrackName"></h3>
+          <p id="recTrackBlurb"></p>
+        </div>
+        <p class="rec-sub">Roles in this track</p>
+        <div class="rec-roles" id="recRoles"></div>
+        <p class="rec-sub">Start with these courses</p>
+        <div id="recCourses"></div>
+        <div class="rec-actions">
+          <!-- PLACEHOLDER: Discord invite -->
+          <a href="https://discord.gg/your-invite" target="_blank" rel="noopener" class="btn btn-primary">Join the Discord to start <span class="arw" aria-hidden="true">→</span></a>
+          <button class="btn btn-ghost btn-sm" id="retakeBtn">Retake survey</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+/* =========================================================================
+   ⚙️  SUPABASE SETUP  — paste your two values here, then redeploy.
+   Get them in Supabase → Project → Settings → API :
+     • Project URL         → SUPABASE_URL
+     • Project API key "anon / public"  → SUPABASE_ANON_KEY
+   The anon key is SAFE to expose in frontend code (Row Level Security
+   protects your data). Leave blank to run in preview mode.
+   ========================================================================= */
+const SUPABASE_URL = "";        // e.g. "https://abcdefgh.supabase.co"
+const SUPABASE_ANON_KEY = "";   // e.g. "eyJhbGciOiJIUzI1NiIsInR..."
+
+const SUPA_READY = !!(SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase);
+let sb = null;
+if (SUPA_READY) { sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); }
+
+/* ---------------- DATA: courses + tracks ---------------- */
+const COURSES = [
+  { code:'TEL-101', title:'Introduction to F1 Telemetry & Race Strategy', level:'Intermediate', weeks:4, track:'perf' },
+  { code:'DES-102', title:'F1 Graphic Design & Livery Concepting',        level:'Beginner',     weeks:3, track:'creative' },
+  { code:'MKT-103', title:'Motorsport Sponsorship & Commercial Marketing', level:'Beginner',     weeks:4, track:'commercial' },
+  { code:'AER-201', title:'Aerodynamics & 3D CAD Modeling Basics',         level:'Advanced',     weeks:5, track:'design' },
+];
+const COURSE_DESC = {
+  'TEL-101':'Read throttle, brake and speed traces, then call the undercut. Turn raw data into race-winning decisions.',
+  'DES-102':'Design a full car livery and sponsor kit using free tools, and ship a portfolio-ready concept from a blank canvas.',
+  'MKT-103':'Build a real sponsorship deck and pitch a brand partnership the way commercial teams actually do it.',
+  'AER-201':'Model a front wing in CAD and learn how downforce is really made — one airflow simulation at a time.',
+};
+const TRACKS = {
+  perf:      { name:'Performance, Data & Strategy', primary:'TEL-101',
+    blurb:"You'll live in the data. Strategy calls, telemetry, tyre models and simulation — the people who find the lap time nobody else can see.",
+    cats:['Performance & Strategy','Electronics, Software & Controls','Powertrain & Power Unit'] },
+  design:    { name:'Design & Aerodynamics', primary:'AER-201',
+    blurb:"You'll shape the car itself. Aerodynamics, CAD, structures and materials — turning airflow and carbon fibre into downforce.",
+    cats:['Aerodynamics & CFD','Design & Engineering','Materials & Composites'] },
+  creative:  { name:'Creative, Media & Brand', primary:'DES-102',
+    blurb:"You'll build the brand fans fall in love with. Liveries, content, film and social — the face of the team on every screen.",
+    cats:['Marketing, Media & Content','Broadcast & Production','PR & Communications'] },
+  commercial:{ name:'Commercial, Business & Operations', primary:'MKT-103',
+    blurb:"You'll power the business behind the car. Sponsorship, partnerships, logistics and finance — the deals that fund the grid.",
+    cats:['Commercial & Partnerships','Logistics & Operations','Finance, Legal & HR','Leadership & Management'] },
+  build:     { name:'Build & Trackside', primary:'AER-201',
+    blurb:"You'll build and run the car in the real world. Manufacturing, mechanics and the pit wall — hands on metal, trackside under pressure.",
+    cats:['Trackside & Race Team','Manufacturing & Production'] },
+};
+
+/* ---------------- DATA: full F1 careers directory ---------------- */
+const CAREERS = [
+  { cat:'Aerodynamics & CFD', roles:['Aerodynamicist','CFD Engineer','Wind Tunnel Engineer','Wind Tunnel Technician','Aero Design Engineer','Aero Performance Engineer','Model Maker','Head of Aerodynamics'] },
+  { cat:'Design & Engineering', roles:['Design Engineer','Mechanical Design Engineer','CAD Engineer / Draughtsperson','Chassis Design Engineer','Suspension Design Engineer','Transmission / Gearbox Engineer','Stress / FEA Engineer','R&D Engineer','Systems Engineer','Chief Designer','Technical Director'] },
+  { cat:'Powertrain & Power Unit', roles:['Power Unit Design Engineer','ICE / Combustion Engineer','ERS / Energy Recovery Engineer','Hybrid Systems Engineer','Battery / Energy Store Engineer','Power Unit Performance Engineer','Dyno Test Engineer','Fuels & Lubricants Engineer'] },
+  { cat:'Electronics, Software & Controls', roles:['Control Systems Engineer','Embedded Software Engineer','Electronics Engineer','Firmware Engineer','Sensors Engineer','Simulator (DIL) Engineer','Simulation Software Engineer','Machine Learning Engineer','Telemetry Engineer'] },
+  { cat:'Performance & Strategy', roles:['Performance Engineer','Race Strategist','Vehicle Dynamics Engineer','Tyre Engineer','Simulation Engineer','Race Data Analyst','Modelling Engineer'] },
+  { cat:'Trackside & Race Team', roles:['Race Engineer','No.1 Mechanic','No.2 Mechanic','Systems / Controls Engineer','Pit Crew — Tyre Gunner','Pit Crew — Wheel On/Off','Pit Crew — Front & Rear Jack','Pit Crew — Car Stabiliser','Chief Mechanic','Team Manager','Sporting Director','Garage Technician'] },
+  { cat:'Manufacturing & Production', roles:['Composite Technician / Laminator','CNC Machinist','Fabricator / Welder','Additive Manufacturing Technician','Inspection / Quality Engineer','Metrology / CMM Technician','Assembly Technician','Paint & Livery Technician','Production Manager'] },
+  { cat:'Materials & Composites', roles:['Composites Engineer','Materials Engineer','Metallurgist','Bonding Technician'] },
+  { cat:'Logistics & Operations', roles:['Logistics Coordinator','Freight & Shipping Coordinator','Travel Coordinator','Supply Chain Manager','Procurement / Buyer','Stores & Inventory Controller','Operations Manager','Race Team Truckie'] },
+  { cat:'Human Performance', roles:['Driver Performance Coach','Physiotherapist','Sports Scientist','Performance Nutritionist','Team Doctor','Human Performance Specialist'] },
+  { cat:'Commercial & Partnerships', roles:['Commercial Director','Sponsorship Manager','Partnership Activation Manager','Sponsorship Sales','Partner Account Manager','Hospitality Manager','Licensing & Merchandise Manager'] },
+  { cat:'Marketing, Media & Content', roles:['Marketing Manager','Brand Manager','Digital Marketing Specialist','Social Media Manager','Content Creator','Community Manager','Copywriter','Graphic Designer','Motion Designer','Livery Designer','Photographer','Videographer / Editor','Web Developer','UI/UX Designer','Podcast Producer'] },
+  { cat:'Broadcast & Production', roles:['Broadcast Director','Camera Operator','Sound Engineer','Timing Graphics Operator','Live Streaming Engineer','Commentator / Presenter','Journalist / Reporter','Production Assistant'] },
+  { cat:'PR & Communications', roles:['Press Officer','Communications Manager','Media Relations Manager'] },
+  { cat:'IT, Data & Cybersecurity', roles:['IT Manager','Network Engineer','Cloud / DevOps Engineer','Cybersecurity Analyst','Database Administrator','Data Scientist','Data Engineer'] },
+  { cat:'Finance, Legal & HR', roles:['Financial Controller','Cost Cap / Budget Analyst','Accountant','Legal Counsel','Contracts Manager','HR / People Manager','Talent Acquisition / Recruiter','Facilities Manager','Health & Safety Officer'] },
+  { cat:'Leadership & Management', roles:['Team Principal','CEO / Managing Director','Technical Director','Operations Director','Sporting Director'] },
+  { cat:'Governance — F1 & FIA', roles:['FIA Race Director','Technical Delegate / Scrutineer','Steward','Medical Delegate','Circuit / Track Design Engineer','F1 Event Operations','Marshal (volunteer entry point)'] },
+];
+
+/* ======================= RENDER: course catalog ======================= */
+(function renderCatalog(){
+  const wrap = document.getElementById('catalogCards');
+  COURSES.forEach(c=>{
+    const lvl = c.level.toLowerCase();
+    const el = document.createElement('article');
+    el.className = 'card reveal';
+    el.innerHTML = `
+      <div class="card-top"><span class="code">${c.code}</span><span class="pill ${lvl}">${c.level}</span></div>
+      <h3>${c.title}</h3>
+      <p>${COURSE_DESC[c.code]||''}</p>
+      <div class="card-foot">
+        <span class="dur"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>${c.weeks} Weeks</span>
+        <button data-open-flow>Get Started <span class="arw" aria-hidden="true">→</span></button>
+      </div>`;
+    wrap.appendChild(el);
+  });
+})();
+
+/* ======================= RENDER: careers directory ======================= */
+(function renderCareers(){
+  const grid = document.getElementById('deptGrid');
+  const chipWrap = document.getElementById('careerChips');
+  const total = CAREERS.reduce((n,d)=>n+d.roles.length,0);
+
+  const allChip = document.createElement('button');
+  allChip.className='chip active'; allChip.textContent=`All (${total})`; allChip.dataset.cat='__all';
+  chipWrap.appendChild(allChip);
+
+  CAREERS.forEach(d=>{
+    const chip=document.createElement('button');
+    chip.className='chip'; chip.textContent=d.cat; chip.dataset.cat=d.cat;
+    chipWrap.appendChild(chip);
+
+    const card=document.createElement('div');
+    card.className='dept'; card.dataset.cat=d.cat;
+    card.innerHTML=`<div class="dept-head"><h3>${d.cat}</h3><span class="count">${d.roles.length} roles</span></div>
+      <ul class="roles">${d.roles.map(r=>`<li data-role="${r.toLowerCase()}">${r}</li>`).join('')}</ul>`;
+    grid.appendChild(card);
+  });
+
+  let activeCat='__all';
+  const search=document.getElementById('careerSearch');
+  const noResults=document.getElementById('noResults');
+
+  function apply(){
+    const q=(search.value||'').trim().toLowerCase();
+    let anyVisible=false;
+    document.querySelectorAll('.dept').forEach(card=>{
+      const catOk = activeCat==='__all' || card.dataset.cat===activeCat;
+      let roleVisible=0;
+      card.querySelectorAll('.roles li').forEach(li=>{
+        const match = !q || li.dataset.role.includes(q);
+        li.classList.toggle('hide', !match);
+        // highlight
+        const name=li.textContent;
+        if(q && match){
+          const i=li.dataset.role.indexOf(q);
+          li.innerHTML = name.slice(0,i)+'<mark>'+name.slice(i,i+q.length)+'</mark>'+name.slice(i+q.length);
+        } else { li.innerHTML=name; }
+        if(match) roleVisible++;
+      });
+      const show = catOk && roleVisible>0;
+      card.classList.toggle('hide', !show);
+      if(show) anyVisible=true;
+    });
+    noResults.style.display = anyVisible ? 'none' : 'block';
+  }
+  chipWrap.addEventListener('click', e=>{
+    const chip=e.target.closest('.chip'); if(!chip) return;
+    activeCat=chip.dataset.cat;
+    chipWrap.querySelectorAll('.chip').forEach(c=>c.classList.toggle('active', c===chip));
+    apply();
+  });
+  search.addEventListener('input', apply);
+})();
+
+/* ======================= UI PLUMBING ======================= */
+const nav=document.querySelector('header.nav');
+const onScroll=()=>nav.classList.toggle('scrolled', window.scrollY>8);
+onScroll(); window.addEventListener('scroll', onScroll, {passive:true});
+
+const menuBtn=document.getElementById('menuBtn'), mobileMenu=document.getElementById('mobileMenu');
+menuBtn.addEventListener('click',()=>{const open=mobileMenu.style.display==='block'; mobileMenu.style.display=open?'none':'block'; menuBtn.setAttribute('aria-expanded',String(!open));});
+mobileMenu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{mobileMenu.style.display='none'; menuBtn.setAttribute('aria-expanded','false');}));
+
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+if(!reduce && 'IntersectionObserver' in window){
+  const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in'); io.unobserve(e.target);}});},{threshold:.12});
+  const observeReveal=()=>document.querySelectorAll('.reveal:not(.in)').forEach(el=>io.observe(el));
+  observeReveal();
+  window.__observeReveal=observeReveal;
+} else { document.querySelectorAll('.reveal').forEach(el=>el.classList.add('in')); }
+
+/* start lights */
+const lightWrap=document.getElementById('lights'), lights=lightWrap.querySelectorAll('.light');
+function runLights(){ if(reduce) return; lights.forEach(l=>l.classList.remove('is-on'));
+  lights.forEach((l,i)=>setTimeout(()=>l.classList.add('is-on'),500+i*280));
+  setTimeout(()=>lights.forEach(l=>l.classList.remove('is-on')),500+lights.length*280+650); }
+runLights();
+lightWrap.addEventListener('click',runLights);
+lightWrap.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault(); runLights();}});
+
+/* ======================= AUTH + SURVEY + RECS FLOW ======================= */
+const overlay=document.getElementById('overlay');
+const screens={auth:document.getElementById('screenAuth'), survey:document.getElementById('screenSurvey'), rec:document.getElementById('screenRec')};
+let currentUser=null, currentProfile=null, previewMode=false;
+const answers={q1:null,q2:null,q3:null,q4:null};
+let qIndex=0; const qKeys=['q1','q2','q3','q4'];
+
+function showScreen(name){ Object.values(screens).forEach(s=>s.classList.remove('active')); screens[name].classList.add('active'); }
+function openModal(){ overlay.classList.add('open'); document.body.style.overflow='hidden'; route(); }
+function closeModal(){ overlay.classList.remove('open'); document.body.style.overflow=''; }
+
+function route(){
+  if(currentUser || previewMode){
+    if(currentProfile && currentProfile.completed_survey){ renderRec(currentProfile.track, currentProfile.level); showScreen('rec'); }
+    else { resetSurvey(); showScreen('survey'); }
+  } else { showScreen('auth'); }
+}
+
+document.querySelectorAll('[data-open-flow]').forEach(b=>b.addEventListener('click', openModal));
+document.getElementById('modalClose').addEventListener('click', closeModal);
+overlay.addEventListener('click', e=>{ if(e.target===overlay) closeModal(); });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape' && overlay.classList.contains('open')) closeModal(); });
+
+/* --- auth screen --- */
+const authMsg=document.getElementById('authMsg'), authEmail=document.getElementById('authEmail'),
+      authPass=document.getElementById('authPass'), authSubmit=document.getElementById('authSubmit'),
+      tabSignup=document.getElementById('tabSignup'), tabSignin=document.getElementById('tabSignin'),
+      previewLine=document.getElementById('previewLine');
+let authMode='signup';
+
+function setMsg(type,text){ authMsg.className='form-msg show '+type; authMsg.textContent=text; }
+function clearMsg(){ authMsg.className='form-msg'; authMsg.textContent=''; }
+
+function setMode(m){ authMode=m;
+  tabSignup.classList.toggle('active', m==='signup'); tabSignin.classList.toggle('active', m==='signin');
+  authSubmit.textContent = m==='signup' ? 'Create Account & Continue' : 'Sign In & Continue';
+  authPass.autocomplete = m==='signup' ? 'new-password' : 'current-password';
+  clearMsg();
+}
+tabSignup.addEventListener('click',()=>setMode('signup'));
+tabSignin.addEventListener('click',()=>setMode('signin'));
+
+if(!SUPA_READY){ previewLine.style.display='block'; setMsg('info','Preview mode: Supabase isn\u2019t connected yet, so accounts are disabled. You can still preview the survey below.'); }
+document.querySelectorAll('[data-preview]').forEach(a=>a.addEventListener('click',()=>{ previewMode=true; resetSurvey(); showScreen('survey'); }));
+
+authSubmit.addEventListener('click', async ()=>{
+  const email=authEmail.value.trim(), pass=authPass.value;
+  if(!email || !pass){ setMsg('err','Please enter your email and a password.'); return; }
+  if(pass.length<6){ setMsg('err','Password must be at least 6 characters.'); return; }
+  if(!SUPA_READY){ previewMode=true; resetSurvey(); showScreen('survey'); return; }
+
+  authSubmit.disabled=true; authSubmit.textContent='Working…'; clearMsg();
+  try{
+    if(authMode==='signup'){
+      const { data, error } = await sb.auth.signUp({ email, password:pass });
+      if(error) throw error;
+      if(data.session){ await afterAuth(data.user); }
+      else { setMode('signin'); setMsg('ok','Account created! Check your email to confirm, then sign in.'); }
+    } else {
+      const { data, error } = await sb.auth.signInWithPassword({ email, password:pass });
+      if(error) throw error;
+      await afterAuth(data.user);
+    }
+  }catch(err){ setMsg('err', err.message || 'Something went wrong. Please try again.'); }
+  finally{ authSubmit.disabled=false; setMode(authMode); }
+});
+
+async function afterAuth(user){
+  currentUser=user; previewMode=false;
+  await loadProfile();
+  updateNavAccount();
+  route();
+}
+
+async function loadProfile(){
+  if(!SUPA_READY || !currentUser) return;
+  const { data } = await sb.from('profiles').select('*').eq('id', currentUser.id).maybeSingle();
+  currentProfile = data || null;
+}
+
+/* --- survey screen --- */
+const qEls=[...document.querySelectorAll('#screenSurvey .q')];
+const progress=[...document.querySelectorAll('#surveyProgress span')];
+const surveyNext=document.getElementById('surveyNext'), surveyBack=document.getElementById('surveyBack');
+
+function resetSurvey(){ qIndex=0; qKeys.forEach(k=>answers[k]=null);
+  document.querySelectorAll('#screenSurvey .opt').forEach(o=>o.classList.remove('sel'));
+  showQ(0);
+}
+function showQ(i){ qIndex=i;
+  qEls.forEach((q,idx)=>q.classList.toggle('active', idx===i));
+  progress.forEach((p,idx)=>p.classList.toggle('done', idx<=i-1));
+  surveyBack.style.visibility = i===0 ? 'hidden' : 'visible';
+  surveyNext.textContent = i===qKeys.length-1 ? 'See my track →' : 'Next →';
+  surveyNext.disabled = !answers[qKeys[i]];
+}
+document.querySelectorAll('#screenSurvey .opt').forEach(opt=>{
+  opt.addEventListener('click',()=>{
+    const q=opt.closest('.q'); const key=q.dataset.q;
+    q.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));
+    opt.classList.add('sel'); answers[key]=opt.dataset.val; surveyNext.disabled=false;
+  });
+});
+surveyBack.addEventListener('click',()=>{ if(qIndex>0) showQ(qIndex-1); });
+surveyNext.addEventListener('click', async ()=>{
+  if(!answers[qKeys[qIndex]]) return;
+  if(qIndex < qKeys.length-1){ showQ(qIndex+1); return; }
+  const track=computeTrack(answers); const level=answers.q4||'Beginner';
+  await saveProfile(track, level);
+  renderRec(track, level); showScreen('rec');
+});
+
+function computeTrack(a){
+  const s={perf:0,design:0,creative:0,commercial:0,build:0};
+  const all=n=>Object.keys(s).forEach(k=>s[k]+=n);
+  ({stem:()=>{s.design+=2;s.perf+=1;}, cs:()=>{s.perf+=2;s.creative+=1;}, art:()=>{s.creative+=3;}, biz:()=>{s.commercial+=3;}, explore:()=>all(1)}[a.q1]||(()=>{}))();
+  ({faster:()=>{s.perf+=2;s.design+=1;}, hands:()=>{s.build+=2;s.design+=1;}, story:()=>{s.creative+=2;s.commercial+=1;}, deals:()=>{s.commercial+=2;}, all:()=>all(1)}[a.q2]||(()=>{}))();
+  ({factory:()=>{s.design+=2;}, trackside:()=>{s.build+=2;s.perf+=1;}, screen:()=>{s.perf+=1;s.creative+=1;}, board:()=>{s.commercial+=2;}, open:()=>all(1)}[a.q3]||(()=>{}))();
+  let best='perf', bv=-1; ['perf','design','creative','commercial','build'].forEach(k=>{ if(s[k]>bv){bv=s[k]; best=k;} });
+  return best;
+}
+function recCourses(track, level){
+  const rank={Beginner:1,Intermediate:2,Advanced:3}, want=rank[level]||1, primary=TRACKS[track].primary;
+  return COURSES.slice().sort((a,b)=>{
+    if(a.code===primary)return -1; if(b.code===primary)return 1;
+    const at=a.track===track?0:1, bt=b.track===track?0:1; if(at!==bt)return at-bt;
+    return Math.abs(rank[a.level]-want)-Math.abs(rank[b.level]-want);
+  }).slice(0,3);
+}
+function rolesForTrack(track){
+  const cats=TRACKS[track].cats, out=[];
+  CAREERS.forEach(d=>{ if(cats.includes(d.cat)) out.push(...d.roles); });
+  return out.slice(0,10);
+}
+function renderRec(track, level){
+  const t=TRACKS[track];
+  document.getElementById('recTrackName').textContent=t.name;
+  document.getElementById('recTrackBlurb').textContent=t.blurb;
+  document.getElementById('recRoles').innerHTML=rolesForTrack(track).map(r=>`<span>${r}</span>`).join('');
+  document.getElementById('recCourses').innerHTML=recCourses(track,level).map(c=>{
+    const lvl=c.level.toLowerCase();
+    return `<div class="rec-course"><div class="rc-l"><span class="rc-title">${c.title}</span>
+      <span class="rc-meta">${c.code} · ${c.weeks} weeks</span></div>
+      <span class="pill ${lvl}">${c.level}</span></div>`;
+  }).join('');
+}
+document.getElementById('retakeBtn').addEventListener('click',()=>{ resetSurvey(); showScreen('survey'); });
+
+async function saveProfile(track, level){
+  currentProfile = Object.assign({}, currentProfile, {
+    major:answers.q1, interest:answers.q2, environment:answers.q3, level, track, completed_survey:true });
+  if(!SUPA_READY || !currentUser) return;
+  try{
+    await sb.from('profiles').upsert({
+      id: currentUser.id, email: currentUser.email,
+      major:answers.q1, interest:answers.q2, environment:answers.q3,
+      level, track, completed_survey:true, updated_at:new Date().toISOString()
+    });
+  }catch(e){ /* non-blocking: recommendation still shows */ }
+}
+
+/* --- nav account state + session restore --- */
+const navAccount=document.getElementById('navAccount'), navWho=document.getElementById('navWho'), signOutBtn=document.getElementById('signOutBtn');
+function updateNavAccount(){
+  if(currentUser){ navAccount.style.display='flex'; navWho.textContent=currentUser.email; }
+  else { navAccount.style.display='none'; }
+}
+signOutBtn.addEventListener('click', async ()=>{
+  if(SUPA_READY) await sb.auth.signOut();
+  currentUser=null; currentProfile=null; updateNavAccount();
+});
+(async function restoreSession(){
+  if(!SUPA_READY) return;
+  const { data } = await sb.auth.getSession();
+  if(data && data.session){ currentUser=data.session.user; await loadProfile(); updateNavAccount(); }
+  sb.auth.onAuthStateChange((_e, session)=>{ currentUser = session ? session.user : null; updateNavAccount(); });
+})();
+</script>
+</body>
+</html>
