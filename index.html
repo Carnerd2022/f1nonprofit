@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>APEX — Your Starting Grid for a Career in Formula 1</title>
+<title>Formula Futures — Your Starting Grid for a Career in Formula 1</title>
 <meta name="description" content="A student-led, 100% free online non-profit bridging the gap between passionate fans and real-world motorsport industries. No experience required." />
 
 <!-- ================= FONTS ================= -->
@@ -64,9 +64,11 @@
   header.nav.scrolled{border-bottom-color:var(--line); background:rgba(8,9,12,.85)}
   .nav-inner{display:flex; align-items:center; justify-content:space-between; height:72px; gap:20px}
   .logo{display:flex; align-items:center; gap:12px; text-decoration:none; color:var(--text); flex:none}
-  .logo-mark{width:34px; height:34px; display:grid; place-items:center; flex:none; border:1.5px solid var(--brand); border-radius:8px; color:var(--brand); box-shadow:inset 0 0 14px rgba(31,211,230,.18)}
-  .logo-word{font-family:var(--font-display); font-weight:700; font-size:21px; letter-spacing:.06em; line-height:1}
-  .logo-sub{font-family:var(--font-mono); font-size:9.5px; letter-spacing:.2em; color:var(--muted-2); text-transform:uppercase; margin-top:3px}
+  .logo-mark{width:40px; height:40px; display:grid; place-items:center; flex:none}
+  .logo-mark svg{display:block}
+  .logo-word{font-family:var(--font-display); font-weight:700; font-size:18px; letter-spacing:.02em; line-height:1.05; text-transform:uppercase}
+  .logo-word .accent{color:var(--brand)}
+  .logo-sub{font-family:var(--font-mono); font-size:9px; letter-spacing:.22em; color:var(--muted-2); text-transform:uppercase; margin-top:4px}
   .nav-links{display:flex; align-items:center; gap:26px}
   .nav-links a{font-family:var(--font-mono); font-size:13px; font-weight:500; letter-spacing:.03em; color:var(--muted); text-decoration:none; transition:color .18s ease; position:relative; padding:6px 0; cursor:pointer}
   .nav-links a:hover{color:var(--text)}
@@ -302,12 +304,25 @@
 <body>
 
 <!-- ======================= NAV ======================= -->
-<!-- PLACEHOLDER: swap "APEX" wordmark + mark for your brand -->
 <header class="nav" id="top">
   <div class="wrap nav-inner">
-    <a href="#top" class="logo" aria-label="APEX home">
-      <span class="logo-mark" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 3 3 21h5l4-9 4 9h5L12 3Z" fill="currentColor"/></svg></span>
-      <span><span class="logo-word display">APEX</span><span class="logo-sub">// Motorsport Pathways</span></span>
+    <a href="#top" class="logo" aria-label="Formula Futures home">
+      <span class="logo-mark" aria-hidden="true">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <g transform="translate(21 20) skewX(-13) translate(-21 -20)">
+            <rect x="15" y="9" width="5.5" height="27" fill="#1FD3E6"/>
+            <rect x="15" y="9" width="14" height="5.5" fill="#1FD3E6"/>
+            <rect x="15" y="20" width="10" height="5" fill="#1FD3E6"/>
+            <rect x="24" y="9" width="5.5" height="27" fill="#1FD3E6"/>
+            <rect x="24" y="9" width="14" height="5.5" fill="#1FD3E6"/>
+            <rect x="24" y="20" width="10" height="5" fill="#1FD3E6"/>
+          </g>
+          <line x1="6" y1="12" x2="12" y2="12" stroke="#1FD3E6" stroke-width="1.6" opacity="0.5" stroke-linecap="round"/>
+          <line x1="4" y1="20" x2="12" y2="20" stroke="#1FD3E6" stroke-width="1.6" opacity="0.32" stroke-linecap="round"/>
+          <line x1="6" y1="28" x2="12" y2="28" stroke="#1FD3E6" stroke-width="1.6" opacity="0.18" stroke-linecap="round"/>
+        </svg>
+      </span>
+      <span><span class="logo-word display">Formula<br><span class="accent">Futures</span></span></span>
     </a>
     <nav class="nav-links" aria-label="Primary">
       <a href="#careers">Careers</a>
@@ -506,8 +521,22 @@
   <div class="wrap">
     <div class="foot-top">
       <a href="#top" class="logo">
-        <span class="logo-mark" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 3 3 21h5l4-9 4 9h5L12 3Z" fill="currentColor"/></svg></span>
-        <span><span class="logo-word display">APEX</span><span class="logo-sub">// Motorsport Pathways</span></span>
+        <span class="logo-mark" aria-hidden="true">
+          <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g transform="translate(21 20) skewX(-13) translate(-21 -20)">
+              <rect x="15" y="9" width="5.5" height="27" fill="#1FD3E6"/>
+              <rect x="15" y="9" width="14" height="5.5" fill="#1FD3E6"/>
+              <rect x="15" y="20" width="10" height="5" fill="#1FD3E6"/>
+              <rect x="24" y="9" width="5.5" height="27" fill="#1FD3E6"/>
+              <rect x="24" y="9" width="14" height="5.5" fill="#1FD3E6"/>
+              <rect x="24" y="20" width="10" height="5" fill="#1FD3E6"/>
+            </g>
+            <line x1="6" y1="12" x2="12" y2="12" stroke="#1FD3E6" stroke-width="1.6" opacity="0.5" stroke-linecap="round"/>
+            <line x1="4" y1="20" x2="12" y2="20" stroke="#1FD3E6" stroke-width="1.6" opacity="0.32" stroke-linecap="round"/>
+            <line x1="6" y1="28" x2="12" y2="28" stroke="#1FD3E6" stroke-width="1.6" opacity="0.18" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <span><span class="logo-word display">Formula<br><span class="accent">Futures</span></span></span>
       </a>
       <nav class="foot-links" aria-label="Footer">
         <a href="#">Terms of Service</a>
@@ -639,8 +668,8 @@
    The anon key is SAFE to expose in frontend code (Row Level Security
    protects your data). Leave blank to run in preview mode.
    ========================================================================= */
-const SUPABASE_URL = "https://ooshxolqnyobakskshxz.supabase.co";        // e.g. "https://abcdefgh.supabase.co"
-const SUPABASE_ANON_KEY = "sb_publishable_78v8dNSOTpkYdmGsvKNQ8w_Z4XN6J9H";   // e.g. "eyJhbGciOiJIUzI1NiIsInR..."
+const SUPABASE_URL = "";        // e.g. "https://abcdefgh.supabase.co"
+const SUPABASE_ANON_KEY = "";   // e.g. "eyJhbGciOiJIUzI1NiIsInR..."
 
 const SUPA_READY = !!(SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase);
 let sb = null;
